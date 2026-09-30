@@ -3,6 +3,7 @@ package com.egaz.visitors.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.egaz.visitors.dto.VisitorRequest;
@@ -12,6 +13,9 @@ import com.egaz.visitors.entity.Visitor;
 import com.egaz.visitors.repository.ExpertRepository;
 import com.egaz.visitors.repository.VisitorRepository;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,5 +75,20 @@ class VisitorServiceTest {
         assertEquals("Jane Doe", response.fullName());
         assertEquals("Meeting", response.purpose());
         assertEquals(null, response.checkOutDate());
+    }
+
+    @Test
+    void autoCheckoutActiveVisitors_setsCheckoutAtThreeThirtyInTheAfternoon() {
+        Visitor activeVisitor = new Visitor();
+        LocalDate today = LocalDate.now(ZoneId.of("Africa/Dar_es_Salaam"));
+        activeVisitor.setCheckInDate(today.atTime(9, 0));
+        LocalDateTime cutoff = today.atTime(15, 30);
+        when(visitorRepository.findByCheckOutDateIsNullAndCheckInDateLessThanEqual(cutoff))
+            .thenReturn(List.of(activeVisitor));
+
+        visitorService.autoCheckoutActiveVisitors();
+
+        assertEquals(cutoff, activeVisitor.getCheckOutDate());
+        verify(visitorRepository).saveAll(List.of(activeVisitor));
     }
 }

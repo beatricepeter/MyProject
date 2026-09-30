@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import '../styles/LoginPage.css';
 import logo from '../assets/EGAZ.jpeg'
-import receptionImage from '../assets/recep.png';
+import receptionImage from '../assets/reception.jpeg';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');

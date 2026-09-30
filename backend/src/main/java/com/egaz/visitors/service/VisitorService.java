@@ -11,8 +11,10 @@ import com.egaz.visitors.repository.VisitorRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,6 +93,14 @@ public class VisitorService {
             throw new IllegalArgumentException("checkOutDate cannot be before checkInDate");
         v.setCheckOutDate(checkout);
         return toResponse(repository.save(v));
+    }
+
+    @Scheduled(cron = "0 30 15 * * *", zone = "Africa/Dar_es_Salaam")
+    public void autoCheckoutActiveVisitors() {
+        LocalDateTime cutoff = LocalDate.now(ZoneId.of("Africa/Dar_es_Salaam")).atTime(15, 30);
+        List<Visitor> activeVisitors = repository.findByCheckOutDateIsNullAndCheckInDateLessThanEqual(cutoff);
+        activeVisitors.forEach(visitor -> visitor.setCheckOutDate(cutoff));
+        repository.saveAll(activeVisitors);
     }
 
     public void delete(String id) { repository.delete(get(id)); }

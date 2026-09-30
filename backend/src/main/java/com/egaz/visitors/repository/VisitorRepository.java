@@ -10,6 +10,7 @@ public interface VisitorRepository extends JpaRepository<Visitor, String> {
     List<Visitor> findAllByOrderByCheckInDateDesc();
     List<Visitor> findByExpert_IdOrderByCheckInDateDesc(String expertId);
     List<Visitor> findByCheckOutDateIsNullOrderByCheckInDateDesc();
+    List<Visitor> findByCheckOutDateIsNullAndCheckInDateLessThanEqual(LocalDateTime checkInCutoff);
     List<Visitor> findByCheckInDateBetweenOrderByCheckInDateDesc(LocalDateTime from, LocalDateTime to);
     Optional<Visitor> findFirstByIdNumberIgnoreCaseOrderByCheckInDateDesc(String idNumber);
     long countByExpert_Id(String expertId);
